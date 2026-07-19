@@ -102,6 +102,22 @@ body{
     border-color:#fff;
 }
 
+.option.correct{
+    background:#1f7a3f;
+    border-color:#1f7a3f;
+    color:#fff;
+}
+
+.option.incorrect{
+    background:#7a1f1f;
+    border-color:#7a1f1f;
+    color:#fff;
+}
+
+.option:disabled{
+    cursor:default;
+}
+
 .result{
     text-align:center;
 }
@@ -178,139 +194,464 @@ Identify the part of speech of the <strong>highlighted</strong> word.
 
 <div class="sentence" id="sentence"></div>
 
-<div class="options">
-
-<button class="option" onclick="submitAnswer('Noun')">Noun</button>
-
-<button class="option" onclick="submitAnswer('Verb')">Verb</button>
-
-<button class="option" onclick="submitAnswer('Adjective')">Adjective</button>
-
-<button class="option" onclick="submitAnswer('Adverb')">Adverb</button>
-
+<div class="options" id="options">
 </div>
 
 </div>
 
 <script>
 
+const ALL_CATEGORIES = [
+'Noun','Verb','Adjective','Adverb',
+'Preposition','Pronoun','Conjunction','Interjection','Article'
+];
+
 const questions = [
-{ sentence:'The <strong>teacher</strong> is kind.', answer:'Noun' },
-{ sentence:'My brother <strong>plays</strong> football.', answer:'Verb' },
-{ sentence:'She wore a <strong>red</strong> dress.', answer:'Adjective' },
-{ sentence:'The baby smiled <strong>happily</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>cat</strong> is under the chair.', answer:'Noun' },
-{ sentence:'They are my <strong>classmates</strong>.', answer:'Noun' },
-{ sentence:'Tea and coffee are <strong>hot</strong> drinks.', answer:'Adjective' },
-{ sentence:'Wow! That is <strong>amazing</strong>.', answer:'Adjective' },
-{ sentence:'I have a <strong>pencil</strong>.', answer:'Noun' },
-{ sentence:'The children are <strong>outside</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>doctor</strong> helped the patient.', answer:'Noun' },
-{ sentence:'Birds <strong>build</strong> nests.', answer:'Verb' },
-{ sentence:'It is a <strong>beautiful</strong> garden.', answer:'Adjective' },
-{ sentence:'He answered <strong>politely</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>keys</strong> are inside the bag.', answer:'Noun' },
-{ sentence:'She loves <strong>music</strong>.', answer:'Noun' },
-{ sentence:'You can <strong>stay</strong>, or you can leave.', answer:'Verb' },
-{ sentence:'Hurray! We <strong>won</strong> the match.', answer:'Verb' },
-{ sentence:'She <strong>ate</strong> an orange.', answer:'Verb' },
-{ sentence:'The bus stopped <strong>here</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>lion</strong> roared loudly.', answer:'Noun' },
-{ sentence:'She <strong>writes</strong> neatly.', answer:'Verb' },
-{ sentence:'The soup is <strong>hot</strong>.', answer:'Adjective' },
-{ sentence:'He finished the work <strong>quickly</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>lamp</strong> is on the table.', answer:'Noun' },
-{ sentence:'We <strong>enjoyed</strong> the picnic.', answer:'Verb' },
-{ sentence:'I was <strong>tired</strong>, but I continued.', answer:'Adjective' },
-{ sentence:'Oops! I <strong>dropped</strong> my phone.', answer:'Verb' },
-{ sentence:'He bought a <strong>bicycle</strong>.', answer:'Noun' },
-{ sentence:'Please wait <strong>there</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>farmer</strong> grows wheat.', answer:'Noun' },
-{ sentence:'The dog <strong>barked</strong> all night.', answer:'Verb' },
-{ sentence:'It was a <strong>sunny</strong> day.', answer:'Adjective' },
-{ sentence:'She spoke <strong>softly</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>school</strong> is near the park.', answer:'Noun' },
-{ sentence:'He is my <strong>cousin</strong>.', answer:'Noun' },
-{ sentence:'Study <strong>hard</strong>, because exams are near.', answer:'Adverb' },
-{ sentence:'Alas! We <strong>missed</strong> the train.', answer:'Verb' },
-{ sentence:'This is an <strong>umbrella</strong>.', answer:'Noun' },
-{ sentence:'The children gathered <strong>together</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>artist</strong> painted a portrait.', answer:'Noun' },
-{ sentence:'My mother <strong>cooks</strong> delicious food.', answer:'Verb' },
-{ sentence:'He lives in a <strong>small</strong> village.', answer:'Adjective' },
-{ sentence:'The train arrived <strong>early</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>picture</strong> hangs above the sofa.', answer:'Noun' },
-{ sentence:'I <strong>enjoy</strong> reading books.', answer:'Verb' },
-{ sentence:'You may call me if you <strong>need</strong> help.', answer:'Verb' },
-{ sentence:'Bravo! You <strong>performed</strong> well.', answer:'Verb' },
-{ sentence:'She found a <strong>coin</strong>.', answer:'Noun' },
-{ sentence:'The birds flew <strong>away</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>pilot</strong> flew the airplane.', answer:'Noun' },
-{ sentence:'The baby <strong>cried</strong> loudly.', answer:'Verb' },
-{ sentence:'She wore a <strong>yellow</strong> hat.', answer:'Adjective' },
-{ sentence:'The rabbit ran <strong>fast</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>shoes</strong> are beside the bed.', answer:'Noun' },
-{ sentence:'You are my <strong>best</strong> friend.', answer:'Adjective' },
-{ sentence:'She smiled because she was <strong>happy</strong>.', answer:'Adjective' },
-{ sentence:'Oops! The glass <strong>broke</strong>.', answer:'Verb' },
-{ sentence:'He has a <strong>new</strong> watch.', answer:'Adjective' },
-{ sentence:'Please come <strong>inside</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>chef</strong> prepared dinner.', answer:'Noun' },
-{ sentence:'The horse <strong>jumped</strong> over the fence.', answer:'Verb' },
-{ sentence:'We visited an <strong>old</strong> castle.', answer:'Adjective' },
-{ sentence:'She completed the test <strong>easily</strong>.', answer:'Adverb' },
-{ sentence:'The ball <strong>rolled</strong> across the road.', answer:'Verb' },
-{ sentence:'They <strong>visited</strong> the museum.', answer:'Verb' },
-{ sentence:'He worked <strong>hard</strong>, so he succeeded.', answer:'Adverb' },
-{ sentence:'Oh! I <strong>forgot</strong> your name.', answer:'Verb' },
-{ sentence:'She bought an <strong>egg</strong>.', answer:'Noun' },
-{ sentence:'Stand <strong>there</strong> quietly.', answer:'Adverb' },
-{ sentence:'The <strong>firefighter</strong> saved the family.', answer:'Noun' },
-{ sentence:'The students <strong>listened</strong> carefully.', answer:'Verb' },
-{ sentence:'The water is <strong>cold</strong>.', answer:'Adjective' },
-{ sentence:'He spoke <strong>clearly</strong>.', answer:'Adverb' },
-{ sentence:'The picture is behind the <strong>door</strong>.', answer:'Noun' },
-{ sentence:'It looks <strong>beautiful</strong>.', answer:'Adjective' },
-{ sentence:'I stayed home although it was <strong>sunny</strong>.', answer:'Adjective' },
-{ sentence:'Hurray! <strong>School</strong> is over.', answer:'Noun' },
-{ sentence:'He needs a <strong>notebook</strong>.', answer:'Noun' },
-{ sentence:'The dog waited <strong>outside</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>driver</strong> stopped the bus.', answer:'Noun' },
-{ sentence:'The children <strong>laughed</strong> together.', answer:'Verb' },
-{ sentence:'She has <strong>long</strong> hair.', answer:'Adjective' },
-{ sentence:'The baby slept <strong>peacefully</strong>.', answer:'Adverb' },
-{ sentence:'The lamp is above the <strong>mirror</strong>.', answer:'Noun' },
-{ sentence:'We <strong>finished</strong> the project.', answer:'Verb' },
-{ sentence:'Tea or coffee is <strong>available</strong>.', answer:'Adjective' },
-{ sentence:'Bravo! You <strong>answered</strong> correctly.', answer:'Verb' },
-{ sentence:'There is an <strong>owl</strong> in the tree.', answer:'Noun' },
-{ sentence:'The train stopped <strong>nearby</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>baby</strong> drank milk.', answer:'Noun' },
-{ sentence:'My father <strong>drives</strong> carefully.', answer:'Verb' },
-{ sentence:'She wore a <strong>warm</strong> sweater.', answer:'Adjective' },
-{ sentence:'The birds flew <strong>high</strong>.', answer:'Adverb' },
-{ sentence:'The <strong>books</strong> are between the boxes.', answer:'Noun' },
-{ sentence:'He <strong>opened</strong> the window.', answer:'Verb' },
-{ sentence:'She <strong>smiled</strong> while reading.', answer:'Verb' },
-{ sentence:'Ah! Now I <strong>understand</strong>.', answer:'Verb' },
-{ sentence:'He adopted a <strong>puppy</strong>.', answer:'Noun' },
-{ sentence:'The children ran <strong>home</strong>.', answer:'Adverb' },
+{
+sentence:'The <strong>teacher</strong> is kind.',
+answer:'Noun'
+},
+{
+sentence:'My brother <strong>plays</strong> football.',
+answer:'Verb'
+},
+{
+sentence:'She wore a <strong>red</strong> dress.',
+answer:'Adjective'
+},
+{
+sentence:'The baby smiled <strong>happily</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The cat is <strong>under</strong> the chair.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>They</strong> are my classmates.',
+answer:'Pronoun'
+},
+{
+sentence:'Tea <strong>and</strong> coffee are hot drinks.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Wow!</strong> That is amazing.',
+answer:'Interjection'
+},
+{
+sentence:'I have <strong>a</strong> pencil.',
+answer:'Article'
+},
+{
+sentence:'The children are <strong>outside</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>doctor</strong> helped the patient.',
+answer:'Noun'
+},
+{
+sentence:'Birds <strong>build</strong> nests.',
+answer:'Verb'
+},
+{
+sentence:'It is a <strong>beautiful</strong> garden.',
+answer:'Adjective'
+},
+{
+sentence:'He answered <strong>politely</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The keys are <strong>inside</strong> the bag.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>She</strong> loves music.',
+answer:'Pronoun'
+},
+{
+sentence:'You can stay, <strong>or</strong> you can leave.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Hurray!</strong> We won the match.',
+answer:'Interjection'
+},
+{
+sentence:'She ate <strong>an</strong> orange.',
+answer:'Article'
+},
+{
+sentence:'The bus stopped <strong>here</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>lion</strong> roared loudly.',
+answer:'Noun'
+},
+{
+sentence:'She <strong>writes</strong> neatly.',
+answer:'Verb'
+},
+{
+sentence:'The soup is <strong>hot</strong>.',
+answer:'Adjective'
+},
+{
+sentence:'He finished the work <strong>quickly</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The lamp is <strong>on</strong> the table.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>We</strong> enjoyed the picnic.',
+answer:'Pronoun'
+},
+{
+sentence:'I was tired, <strong>but</strong> I continued.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Oops!</strong> I dropped my phone.',
+answer:'Interjection'
+},
+{
+sentence:'He bought <strong>a</strong> bicycle.',
+answer:'Article'
+},
+{
+sentence:'Please wait <strong>there</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>farmer</strong> grows wheat.',
+answer:'Noun'
+},
+{
+sentence:'The dog <strong>barked</strong> all night.',
+answer:'Verb'
+},
+{
+sentence:'It was a <strong>sunny</strong> day.',
+answer:'Adjective'
+},
+{
+sentence:'She spoke <strong>softly</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The school is <strong>near</strong> the park.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>He</strong> is my cousin.',
+answer:'Pronoun'
+},
+{
+sentence:'Study hard, <strong>because</strong> exams are near.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Alas!</strong> We missed the train.',
+answer:'Interjection'
+},
+{
+sentence:'This is <strong>an</strong> umbrella.',
+answer:'Article'
+},
+{
+sentence:'The children gathered <strong>together</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>artist</strong> painted a portrait.',
+answer:'Noun'
+},
+{
+sentence:'My mother <strong>cooks</strong> delicious food.',
+answer:'Verb'
+},
+{
+sentence:'He lives in a <strong>small</strong> village.',
+answer:'Adjective'
+},
+{
+sentence:'The train arrived <strong>early</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The picture hangs <strong>above</strong> the sofa.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>I</strong> enjoy reading books.',
+answer:'Pronoun'
+},
+{
+sentence:'You may call me <strong>if</strong> you need help.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Bravo!</strong> You performed well.',
+answer:'Interjection'
+},
+{
+sentence:'She found <strong>a</strong> coin.',
+answer:'Article'
+},
+{
+sentence:'The birds flew <strong>away</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>pilot</strong> flew the airplane.',
+answer:'Noun'
+},
+{
+sentence:'The baby <strong>cried</strong> loudly.',
+answer:'Verb'
+},
+{
+sentence:'She wore a <strong>yellow</strong> hat.',
+answer:'Adjective'
+},
+{
+sentence:'The rabbit ran <strong>fast</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The shoes are <strong>beside</strong> the bed.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>You</strong> are my best friend.',
+answer:'Pronoun'
+},
+{
+sentence:'She smiled <strong>because</strong> she was happy.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Oops!</strong> The glass broke.',
+answer:'Interjection'
+},
+{
+sentence:'He has <strong>a</strong> new watch.',
+answer:'Article'
+},
+{
+sentence:'Please come <strong>inside</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>chef</strong> prepared dinner.',
+answer:'Noun'
+},
+{
+sentence:'The horse <strong>jumped</strong> over the fence.',
+answer:'Verb'
+},
+{
+sentence:'We visited an <strong>old</strong> castle.',
+answer:'Adjective'
+},
+{
+sentence:'She completed the test <strong>easily</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The ball rolled <strong>across</strong> the road.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>They</strong> visited the museum.',
+answer:'Pronoun'
+},
+{
+sentence:'He worked hard, <strong>so</strong> he succeeded.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Oh!</strong> I forgot your name.',
+answer:'Interjection'
+},
+{
+sentence:'She bought <strong>an</strong> egg.',
+answer:'Article'
+},
+{
+sentence:'Stand <strong>there</strong> quietly.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>firefighter</strong> saved the family.',
+answer:'Noun'
+},
+{
+sentence:'The students <strong>listened</strong> carefully.',
+answer:'Verb'
+},
+{
+sentence:'The water is <strong>cold</strong>.',
+answer:'Adjective'
+},
+{
+sentence:'He spoke <strong>clearly</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The picture is <strong>behind</strong> the door.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>It</strong> looks beautiful.',
+answer:'Pronoun'
+},
+{
+sentence:'I stayed home <strong>although</strong> it was sunny.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Hurray!</strong> School is over.',
+answer:'Interjection'
+},
+{
+sentence:'He needs <strong>a</strong> notebook.',
+answer:'Article'
+},
+{
+sentence:'The dog waited <strong>outside</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>driver</strong> stopped the bus.',
+answer:'Noun'
+},
+{
+sentence:'The children <strong>laughed</strong> together.',
+answer:'Verb'
+},
+{
+sentence:'She has <strong>long</strong> hair.',
+answer:'Adjective'
+},
+{
+sentence:'The baby slept <strong>peacefully</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The lamp is <strong>above</strong> the mirror.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>We</strong> finished the project.',
+answer:'Pronoun'
+},
+{
+sentence:'Tea <strong>or</strong> coffee is available.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Bravo!</strong> You answered correctly.',
+answer:'Interjection'
+},
+{
+sentence:'There is <strong>an</strong> owl in the tree.',
+answer:'Article'
+},
+{
+sentence:'The train stopped <strong>nearby</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The <strong>baby</strong> drank milk.',
+answer:'Noun'
+},
+{
+sentence:'My father <strong>drives</strong> carefully.',
+answer:'Verb'
+},
+{
+sentence:'She wore a <strong>warm</strong> sweater.',
+answer:'Adjective'
+},
+{
+sentence:'The birds flew <strong>high</strong>.',
+answer:'Adverb'
+},
+{
+sentence:'The books are <strong>between</strong> the boxes.',
+answer:'Preposition'
+},
+{
+sentence:'<strong>He</strong> opened the window.',
+answer:'Pronoun'
+},
+{
+sentence:'She smiled <strong>while</strong> reading.',
+answer:'Conjunction'
+},
+{
+sentence:'<strong>Ah!</strong> Now I understand.',
+answer:'Interjection'
+},
+{
+sentence:'He adopted <strong>a</strong> puppy.',
+answer:'Article'
+},
+{
+sentence:'The children ran <strong>home</strong>.',
+answer:'Adverb'
+},
+
 ];
 
 let current=0;
 let score=0;
 let seconds=30;
 let countdown;
-let answered=false;
+let locked=false;
+
+function shuffle(arr){
+    const a=arr.slice();
+    for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+}
+
+function buildOptions(correctAnswer){
+    const distractorPool = ALL_CATEGORIES.filter(c => c !== correctAnswer);
+    const distractors = shuffle(distractorPool).slice(0,3);
+    return shuffle([correctAnswer, ...distractors]);
+}
 
 function loadQuestion(){
 
-answered=false;
+locked=false;
 
 document.getElementById("qNo").textContent=current+1;
 
 document.getElementById("sentence").innerHTML=
 questions[current].sentence;
+
+const optionsContainer=document.getElementById("options");
+optionsContainer.innerHTML="";
+
+const opts=buildOptions(questions[current].answer);
+
+opts.forEach(opt=>{
+    const btn=document.createElement("button");
+    btn.className="option";
+    btn.textContent=opt;
+    btn.onclick=()=>submitAnswer(opt,btn);
+    optionsContainer.appendChild(btn);
+});
 
 seconds=30;
 
@@ -326,10 +667,44 @@ document.getElementById("timer").textContent=seconds;
 
 if(seconds<=0){
 
-if(answered) return;
-answered=true;
-
 clearInterval(countdown);
+
+if(!locked){
+    revealAnswer(null);
+}
+
+goNext();
+
+}
+
+},1000);
+
+}
+
+function revealAnswer(clickedBtn){
+
+locked=true;
+
+const correctAnswer=questions[current].answer;
+const buttons=document.querySelectorAll("#options .option");
+
+buttons.forEach(b=>{
+
+b.disabled=true;
+
+if(b.textContent===correctAnswer){
+    b.classList.add("correct");
+}else if(b===clickedBtn){
+    b.classList.add("incorrect");
+}
+
+});
+
+}
+
+function goNext(){
+
+setTimeout(()=>{
 
 current++;
 
@@ -343,16 +718,13 @@ showResult();
 
 }
 
-}
-
-},1000);
+},600);
 
 }
 
-function submitAnswer(choice){
+function submitAnswer(choice,btn){
 
-if(answered) return;
-answered=true;
+if(locked)return;
 
 clearInterval(countdown);
 
@@ -362,17 +734,9 @@ score++;
 
 }
 
-current++;
+revealAnswer(btn);
 
-if(current<questions.length){
-
-loadQuestion();
-
-}else{
-
-showResult();
-
-}
+goNext();
 
 }
 
