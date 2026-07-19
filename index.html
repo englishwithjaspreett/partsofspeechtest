@@ -163,7 +163,7 @@ body{
 <div class="header">
 
 <div class="questionNo">
-Question <span id="qNo">1</span> of 1000
+Question <span id="qNo">1</span> of 100
 </div>
 
 <div class="timer">
@@ -678,7 +678,7 @@ document.querySelector(".card").innerHTML=`
 
 <p>Your Score</p>
 
-<h1>${score}/10</h1>
+<h1>${Math.round((score / questions.length) * 100)}/100</h1>
 
 <button class="restart" onclick="location.reload()">
 Try Again
