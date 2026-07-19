@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parts of Speech Test</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Georgia, "Times New Roman", serif;
+    background:#0f0f0f;
+    color:#f5f5f5;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:30px;
+}
+
+.card{
+    width:100%;
+    max-width:760px;
+    background:#171717;
+    border:1px solid #2d2d2d;
+    border-radius:18px;
+    padding:55px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:45px;
+}
+
+.questionNo{
+    color:#9f9f9f;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    font-size:14px;
+}
+
+.timer{
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    border:2px solid #505050;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.prompt{
+    color:#b8b8b8;
+    font-size:20px;
+    line-height:1.7;
+    margin-bottom:20px;
+}
+
+.sentence{
+    font-size:42px;
+    line-height:1.6;
+    margin-bottom:45px;
+}
+
+.sentence strong{
+    color:#ffffff;
+    text-decoration:underline;
+    text-decoration-thickness:2px;
+    text-underline-offset:8px;
+}
+
+.options{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.option{
+    padding:18px;
+    background:#101010;
+    color:#f5f5f5;
+    border:1px solid #333;
+    border-radius:12px;
+    font-family:Georgia, serif;
+    font-size:20px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.option:hover{
+    background:#fff;
+    color:#111;
+    border-color:#fff;
+}
+
+.result{
+    text-align:center;
+}
+
+.result h2{
+    font-size:36px;
+    margin-bottom:10px;
+}
+
+.result p{
+    color:#aaa;
+    margin-top:10px;
+}
+
+.result h1{
+    font-size:72px;
+    margin:25px 0;
+}
+
+.restart{
+    margin-top:20px;
+    width:100%;
+    padding:18px;
+    background:#fff;
+    color:#000;
+    border:none;
+    border-radius:12px;
+    font-family:Georgia, serif;
+    font-size:20px;
+    cursor:pointer;
+}
+
+@media(max-width:600px){
+
+.card{
+    padding:30px;
+}
+
+.sentence{
+    font-size:30px;
+}
+
+.options{
+    grid-template-columns:1fr;
+}
+
+.option{
+    font-size:18px;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="header">
+
+<div class="questionNo">
+Question <span id="qNo">1</span> of 10
+</div>
+
+<div class="timer">
+<span id="timer">30</span>
+</div>
+
+</div>
+
+<div class="prompt">
+Identify the part of speech of the <strong>highlighted</strong> word.
+</div>
+
+<div class="sentence" id="sentence"></div>
+
+<div class="options">
+
+<button class="option" onclick="submitAnswer('Noun')">Noun</button>
+
+<button class="option" onclick="submitAnswer('Verb')">Verb</button>
+
+<button class="option" onclick="submitAnswer('Adjective')">Adjective</button>
+
+<button class="option" onclick="submitAnswer('Adverb')">Adverb</button>
+
+</div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+sentence:'He is a <strong>boy</strong>.',
+answer:'Noun'
+},
+
+{
+sentence:'She <strong>runs</strong> fast.',
+answer:'Verb'
+},
+
+{
+sentence:'It is a <strong>big</strong> house.',
+answer:'Adjective'
+},
+
+{
+sentence:'He speaks <strong>slowly</strong>.',
+answer:'Adverb'
+},
+
+{
+sentence:'The <strong>cat</strong> is under the table.',
+answer:'Noun'
+},
+
+{
+sentence:'She is my <strong>friend</strong>.',
+answer:'Noun'
+},
+
+{
+sentence:'I like <strong>tea</strong> and coffee.',
+answer:'Noun'
+},
+
+{
+sentence:'You <strong>did</strong> it.',
+answer:'Verb'
+},
+
+{
+sentence:'I have a <strong>pen</strong>.',
+answer:'Noun'
+},
+
+{
+sentence:'They <strong>play</strong> outside.',
+answer:'Verb'
+},
+
+{
+sentence:'The dog is <strong>sleeping</strong>.',
+answer:'Verb'
+},
+
+{
+sentence:'Birds <strong>fly</strong> high.',
+answer:'Verb'
+},
+
+{
+sentence:'She has a <strong>blue</strong> dress.',
+answer:'Adjective'
+},
+
+{
+sentence:'He works <strong>hard</strong>.',
+answer:'Adverb'
+},
+
+{
+sentence:'The <strong>ball</strong> is in the box.',
+answer:'Noun'
+},
+
+{
+sentence:'We are <strong>happy</strong>.',
+answer:'Adjective'
+},
+
+{
+sentence:'I was <strong>tired</strong>, but I finished my work.',
+answer:'Adjective'
+},
+
+{
+sentence:'I <strong>forgot</strong> my keys.',
+answer:'Verb'
+},
+
+{
+sentence:'This is an <strong>apple</strong>.',
+answer:'Noun'
+},
+
+{
+sentence:'The <strong>baby</strong> is here.',
+answer:'Noun'
+}
+
+];
+
+let current=0;
+let score=0;
+let seconds=30;
+let countdown;
+
+function loadQuestion(){
+
+document.getElementById("qNo").textContent=current+1;
+
+document.getElementById("sentence").innerHTML=
+questions[current].sentence;
+
+seconds=30;
+
+document.getElementById("timer").textContent=seconds;
+
+clearInterval(countdown);
+
+countdown=setInterval(()=>{
+
+seconds--;
+
+document.getElementById("timer").textContent=seconds;
+
+if(seconds<=0){
+
+clearInterval(countdown);
+
+current++;
+
+if(current<questions.length){
+
+loadQuestion();
+
+}else{
+
+showResult();
+
+}
+
+}
+
+},1000);
+
+}
+
+function submitAnswer(choice){
+
+clearInterval(countdown);
+
+if(choice===questions[current].answer){
+
+score++;
+
+}
+
+current++;
+
+if(current<questions.length){
+
+loadQuestion();
+
+}else{
+
+showResult();
+
+}
+
+}
+
+function showResult(){
+
+document.querySelector(".card").innerHTML=`
+
+<div class="result">
+
+<h2>Test Completed</h2>
+
+<p>Your Score</p>
+
+<h1>${score}/10</h1>
+
+<button class="restart" onclick="location.reload()">
+Try Again
+</button>
+
+</div>
+
+`;
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
